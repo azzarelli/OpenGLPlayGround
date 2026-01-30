@@ -10,6 +10,8 @@ using namespace glm;
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <glm/gtx/string_cast.hpp>
+
 
 int main(){
 
@@ -159,58 +161,37 @@ int main(){
     );
     mat4 Model = translate(mat4(1.0f), vec3(-1.0f, 0.0f, 0.0f)); // At the origin w/ identity
     mat4 mvp = Projection * View * Model; // Basically intrinsic, extrinsic and object local spatial transofrms
-    
-    mat4 Model2 = translate(mat4(1.0f), vec3(1.0f, 0.0f, 0.0f));; // At the origin w/ identity
-    mat4 mvp2 = Projection * View * Model2; // Basically intrinsic, extrinsic and object local spatial transofrms
-
+ 
     // Hand over to shaders
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
+    float x_pos = 0.0f;
+    float x_delta = 0.01f;
+    float x_pos_sign = 1.0f;
 
     do{
         // Clear scene to avoid flickering
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(programID);
-        
         // send transform to the shader, doesnt mater where its at so long as it is instantiated before the end of the loop
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-
         
-        // Configuration for the vertex positions/buffer
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-        glVertexAttribPointer(
-            0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-            3,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
-            0,                  // stride
-            (void*)0            // array buffer offset
-        );
-
-        // Configuration for the vertex colors/buffers
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-        glVertexAttribPointer(
-            1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-            3,                                // size
-            GL_FLOAT,                         // type
-            GL_FALSE,                         // normalized?
-            0,                                // stride
-            (void*)0                          // array buffer offset
-        );
-
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS); // Accept closer fragments
-
-        // Draw the triangle !
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertex_buffer_data)/sizeof(GLfloat)); // Starting from vertex 0; 3 vertices total -> 1 triangle
-        glDisableVertexAttribArray(0);
-
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp2[0][0]);
-
+        if (Model[3][0] > 1.0f){
+            x_pos_sign = -1.0f;
+        }
+        else if (Model[3][0] < -1.0f)
+        {
+            x_pos_sign = 1.0f;
+        }
         
+        x_pos = x_pos_sign * x_delta;
+
+        Model = translate(Model, vec3(x_pos, 0.0f, 0.0f));;
+        fprintf(stdout, to_string(Model).c_str());
+        fprintf(stdout, "%f\n", x_pos_sign);
+
+        mvp = Projection * View * Model;
         // Configuration for the vertex positions/buffer
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
