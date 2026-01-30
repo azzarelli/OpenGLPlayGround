@@ -8,6 +8,8 @@ using namespace glm;
 
 #include "common/shader.hpp"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 
 int main(){
 
@@ -24,9 +26,11 @@ int main(){
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
 
-
+    int width = 1024;
+    int height = 768;
     GLFWwindow* window;
-    window = glfwCreateWindow(1024, 768, "Tut 01", NULL, NULL);
+
+    window = glfwCreateWindow(width, height, "Tut 03", NULL, NULL);
 
     if (window == NULL){
         fprintf(stderr, "Failed to open GLFW ...");
@@ -69,11 +73,30 @@ int main(){
     GLuint programID = LoadShaders( "vertexShader.glsl", "fragmentShader.glsl" );
 
 
+    // Set up Projection, view and Model matrices
+    mat4 Projection = glm::perspective(glm::radians(45.0f), (float) width / (float)height, 0.1f, 100.0f);
+
+    mat4 View = glm::lookAt(
+        vec3(4,3,3), // Camera is at (4,3,3), in World Space
+        vec3(0,0,0), // and looks at the origin
+        vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+    );
+    mat4 Model = glm::mat4(1.0f); // At the origin w/ identity
+    mat4 mvp = Projection * View * Model; // Basically intrinsic, extrinsic and object local spatial transofrms
+
+    // Hand over to shaders
+    GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+
+
     do{
         // Clear scene to avoid flickering
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(programID);
+        
+        // send transform to the shader, doesnt mater where its at so long as it is instantiated before the end of the loop
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
+        
         // TODO
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
