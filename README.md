@@ -9,7 +9,7 @@ until I can grease pencil some meshes.
 1. "Tutorial 1": Operating a window
 2. "Tutorial 2": 2-D Triangle rendering
 3. "Tutorial 3": Intrinsic/Extrinsic/Model Transforms
-4. "Tutorial 4 + ..": Rendering a cube. Extra work: re-shading the same cube 2x with different Model transforms
+4. "Tutorial 4 + ..": Rendering a cube. Extra work: re-shading the same cube 2x with different Model transforms (multi-instance from single object/modelMatrix)
 4. "Moving Cube from -1 < x < 1 ": Moving a cube from the -1 x and +1 x positions, each frame
 5. "Tutorial 5": Loading BMP and DSS files for texturing vertices
 6. "Tutorial 6 + more funcs": Implemented mouse and keyboard controls and updated the scroll functionality for compatibility with glfw3. Also added some buttons for other motion characteristics
