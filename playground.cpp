@@ -70,7 +70,7 @@ int main(){
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
     // Compile Shaders
-    GLuint programID = LoadShaders( "vertexShader.glsl", "fragmentShader.glsl" );
+    GLuint programID = LoadShaders( "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl" );
 
 
     // Set up Projection, view and Model matrices
