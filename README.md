@@ -14,3 +14,4 @@ until I can grease pencil some meshes.
 5. "Tutorial 5": Loading BMP and DSS files for texturing vertices
 6. "Tutorial 6 + more funcs": Implemented mouse and keyboard controls and updated the scroll functionality for compatibility with glfw3. Also added some buttons for other motion characteristics
 7. "Control with moving object": Added the moving cube from commit #4 to make it more exciting.
+8. "Tutorial 7": Implementing a really simple .obj loader for vertex and texture shader
