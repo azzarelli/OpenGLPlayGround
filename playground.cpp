@@ -8,10 +8,12 @@ using namespace glm;
 
 #include "common/shader.hpp"
 #include "common/texture.hpp"
+#include "common/controls.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <glm/gtx/string_cast.hpp>
+GLFWwindow* window = nullptr;
 
 
 int main(){
@@ -31,7 +33,6 @@ int main(){
 
     int width = 1024;
     int height = 768;
-    GLFWwindow* window;
 
     window = glfwCreateWindow(width, height, "Tut 03", NULL, NULL);
 
@@ -48,9 +49,14 @@ int main(){
         return -1;
     }
 
+    glfwSetScrollCallback(window, scroll_callback);
+
     // To stop window from autoclosing - lol
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
+
+    
+    
     // Init VAO
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -151,16 +157,8 @@ int main(){
     // Compile Shaders
     GLuint programID = LoadShaders( "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl" );
 
-    // Set up Projection, view and Model matrices
-    mat4 Projection = perspective(glm::radians(45.0f), (float) width / (float)height, 0.1f, 100.0f);
 
-    mat4 View = lookAt(
-        vec3(4,3,3), // Camera is at (4,3,3), in World Space
-        vec3(0,0,0), // and looks at the origin
-        vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-    );
-    mat4 Model = translate(mat4(1.0f), vec3(-1.0f, 0.0f, 0.0f)); // At the origin w/ identity
-    mat4 mvp = Projection * View * Model; // Basically intrinsic, extrinsic and object local spatial transofrms
+    mat4 ModelMatrix = translate(mat4(1.0f), vec3(-1.0f, 0.0f, 0.0f)); // At the origin w/ identity
  
     // Hand over to shaders
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
@@ -176,6 +174,12 @@ int main(){
         // Clear scene to avoid flickering
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        computeMatricesFromInputs();
+        mat4 ProjectionMatrix = getProjectionMatrix();
+        mat4 ViewMatrix = getViewMatrix();
+        mat4 mvp = ProjectionMatrix * ViewMatrix * ModelMatrix;
+
+        
         glUseProgram(programID);
         // send transform to the shader, doesnt mater where its at so long as it is instantiated before the end of the loop
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
