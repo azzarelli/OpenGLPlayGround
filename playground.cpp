@@ -170,6 +170,10 @@ int main(){
 	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
 
 
+    float x_pos = 0.0f;
+    float x_delta = 0.01f;
+    float x_pos_sign = 1.0f;
+
     do{
         // Clear scene to avoid flickering
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -177,6 +181,18 @@ int main(){
         computeMatricesFromInputs();
         mat4 ProjectionMatrix = getProjectionMatrix();
         mat4 ViewMatrix = getViewMatrix();
+
+        if (ModelMatrix[3][0] > 1.0f){
+            x_pos_sign = -1.0f;
+        }
+        else if (ModelMatrix[3][0] < -1.0f)
+        {
+            x_pos_sign = 1.0f;
+        }
+        
+        x_pos = x_pos_sign * x_delta;
+        ModelMatrix = translate(ModelMatrix, vec3(x_pos, 0.0f, 0.0f));;
+
         mat4 mvp = ProjectionMatrix * ViewMatrix * ModelMatrix;
 
         
