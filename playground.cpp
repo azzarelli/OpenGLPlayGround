@@ -65,7 +65,11 @@ int main(){
     mat4 ModelMatrix = translate(mat4(1.0f), vec3(-1.0f, 0.0f, 0.0f)); // At the origin w/ identity
  
     // Hand over to shaders
-    GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+    GLuint MatrixID = glGetUniformLocation(programID, "MVP"); // Init full cam transform
+    GLuint ViewID = glGetUniformLocation(programID, "V"); // Init view transform 
+    GLuint ModelID = glGetUniformLocation(programID, "M"); // Init model transform 
+    GLuint ModelViewID = glGetUniformLocation(programID, "MV"); // Init model transform 
+    GLuint LightPosID = glGetUniformLocation(programID, "LightPosition_worldspace"); // Init model transform 
 
     // Implemented the texture loader in /common/texture.cpp/hpp
     // GLuint Texture = loadBMP_custom("uvtemplate.bmp");
@@ -86,11 +90,8 @@ int main(){
 
     // Identify the vertex buffer
     GLuint vertexbuffer;
-    // Generate 1 buffer, put the resulting adrr in vertexbuffer
     glGenBuffers(1, &vertexbuffer);
-    // The following commands will talk about our 'vertexbuffer' buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    // Give our vertices to OpenGL.
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
     GLuint uvbuffer;
@@ -98,10 +99,18 @@ int main(){
     glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
     glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
 
+    GLuint normalbuffer;
+    glGenBuffers(1, &normalbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+
+
     float x_pos = 0.0f;
     float x_delta = 0.01f;
     float x_pos_sign = 1.0f;
 
+    // Define light position
+    vec3 lightPos = vec3(4.0f, 4.0f, 4.0f);
     do{
         // Clear scene to avoid flickering
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -123,10 +132,15 @@ int main(){
 
         mat4 mvp = ProjectionMatrix * ViewMatrix * ModelMatrix;
 
+        mat4 mv = ViewMatrix * ModelMatrix;
         
         glUseProgram(programID);
         // send transform to the shader, doesnt mater where its at so long as it is instantiated before the end of the loop
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+        glUniformMatrix4fv(ViewID, 1, GL_FALSE, &ViewMatrix[0][0]);
+        glUniformMatrix4fv(ModelID, 1, GL_FALSE, &ModelMatrix[0][0]);
+        glUniformMatrix4fv(ModelViewID, 1, GL_FALSE, &mv[0][0]);
+        glUniform3fv(LightPosID, 1, &lightPos[0]);
         
         glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, Texture);
@@ -157,6 +171,17 @@ int main(){
             (void*)0                          // array buffer offset
         );
 
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+        glVertexAttribPointer(
+            2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+            3,                                // size
+            GL_FLOAT,                         // type
+            GL_FALSE,                         // normalized?
+            0,                                // stride
+            (void*)0                          // array buffer offset
+        );
+
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS); // Accept closer fragments
 
@@ -165,6 +190,7 @@ int main(){
         
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
 
         // Swap buffers
         glfwSwapBuffers(window);
