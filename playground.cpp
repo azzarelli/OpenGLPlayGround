@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <vector>
+
 #include <stdlib.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -9,6 +11,7 @@ using namespace glm;
 #include "common/shader.hpp"
 #include "common/texture.hpp"
 #include "common/controls.hpp"
+#include "common/objloader.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -55,105 +58,6 @@ int main(){
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
 
-    
-    
-    // Init VAO
-    GLuint VertexArrayID;
-    glGenVertexArrays(1, &VertexArrayID);
-    glBindVertexArray(VertexArrayID);
-
-    static const GLfloat g_vertex_buffer_data[] = {
-        -1.0f,-1.0f,-1.0f, // triangle 1 : begin
-        -1.0f,-1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f, // triangle 1 : end
-        1.0f, 1.0f,-1.0f, // triangle 2 : begin
-        -1.0f,-1.0f,-1.0f,
-        -1.0f, 1.0f,-1.0f, // triangle 2 : end
-        1.0f,-1.0f, 1.0f,
-        -1.0f,-1.0f,-1.0f,
-        1.0f,-1.0f,-1.0f,
-        1.0f, 1.0f,-1.0f,
-        1.0f,-1.0f,-1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f,-1.0f,
-        1.0f,-1.0f, 1.0f,
-        -1.0f,-1.0f, 1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f,-1.0f, 1.0f,
-        1.0f,-1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f,-1.0f,-1.0f,
-        1.0f, 1.0f,-1.0f,
-        1.0f,-1.0f,-1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f,-1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f,-1.0f,
-        -1.0f, 1.0f,-1.0f,
-        1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f,-1.0f,
-        -1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        1.0f,-1.0f, 1.0f
-    };
-
-    // Identify the vertex buffer
-    GLuint vertexbuffer;
-    // Generate 1 buffer, put the resulting adrr in vertexbuffer
-    glGenBuffers(1, &vertexbuffer);
-    // The following commands will talk about our 'vertexbuffer' buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    // Give our vertices to OpenGL.
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-
-    static const GLfloat g_uv_buffer_data[] = {
-        0.000059f, 1.0f-0.000004f,
-        0.000103f, 1.0f-0.336048f,
-        0.335973f, 1.0f-0.335903f,
-        1.000023f, 1.0f-0.000013f,
-        0.667979f, 1.0f-0.335851f,
-        0.999958f, 1.0f-0.336064f,
-        0.667979f, 1.0f-0.335851f,
-        0.336024f, 1.0f-0.671877f,
-        0.667969f, 1.0f-0.671889f,
-        1.000023f, 1.0f-0.000013f,
-        0.668104f, 1.0f-0.000013f,
-        0.667979f, 1.0f-0.335851f,
-        0.000059f, 1.0f-0.000004f,
-        0.335973f, 1.0f-0.335903f,
-        0.336098f, 1.0f-0.000071f,
-        0.667979f, 1.0f-0.335851f,
-        0.335973f, 1.0f-0.335903f,
-        0.336024f, 1.0f-0.671877f,
-        1.000004f, 1.0f-0.671847f,
-        0.999958f, 1.0f-0.336064f,
-        0.667979f, 1.0f-0.335851f,
-        0.668104f, 1.0f-0.000013f,
-        0.335973f, 1.0f-0.335903f,
-        0.667979f, 1.0f-0.335851f,
-        0.335973f, 1.0f-0.335903f,
-        0.668104f, 1.0f-0.000013f,
-        0.336098f, 1.0f-0.000071f,
-        0.000103f, 1.0f-0.336048f,
-        0.000004f, 1.0f-0.671870f,
-        0.336024f, 1.0f-0.671877f,
-        0.000103f, 1.0f-0.336048f,
-        0.336024f, 1.0f-0.671877f,
-        0.335973f, 1.0f-0.335903f,
-        0.667969f, 1.0f-0.671889f,
-        1.000004f, 1.0f-0.671847f,
-        0.667979f, 1.0f-0.335851f
-    };
-    GLuint uvbuffer;
-    glGenBuffers(1, &uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
-
-
     // Compile Shaders
     GLuint programID = LoadShaders( "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl" );
 
@@ -165,10 +69,34 @@ int main(){
 
     // Implemented the texture loader in /common/texture.cpp/hpp
     // GLuint Texture = loadBMP_custom("uvtemplate.bmp");
-    GLuint Texture = loadDDS("uvtemplate.DDS");
+    GLuint Texture = loadDDS("assets/tutorial7/uvmap.DDS");
 
 	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
 
+    // Init VAO
+    GLuint VertexArrayID;
+    glGenVertexArrays(1, &VertexArrayID);
+    glBindVertexArray(VertexArrayID);
+
+    std::vector< glm::vec3 > vertices;
+    std::vector< glm::vec2 > uvs;
+    std::vector< glm::vec3 > normals; // Won't be used at the moment.
+    bool res = loadOBJ("assets/tutorial7/cube.obj", vertices, uvs, normals);
+
+
+    // Identify the vertex buffer
+    GLuint vertexbuffer;
+    // Generate 1 buffer, put the resulting adrr in vertexbuffer
+    glGenBuffers(1, &vertexbuffer);
+    // The following commands will talk about our 'vertexbuffer' buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    // Give our vertices to OpenGL.
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+
+    GLuint uvbuffer;
+    glGenBuffers(1, &uvbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
 
     float x_pos = 0.0f;
     float x_delta = 0.01f;
@@ -233,7 +161,7 @@ int main(){
         glDepthFunc(GL_LESS); // Accept closer fragments
 
         // Draw the triangle !
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertex_buffer_data)/sizeof(GLfloat)); // Starting from vertex 0; 3 vertices total -> 1 triangle
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size()); // Starting from vertex 0; 3 vertices total -> 1 triangle
         
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);

@@ -78,26 +78,26 @@ void computeMatricesFromInputs(){
     vec3 up = cross(right, direction );
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        position += direction * deltaTime * speed;
+        position += direction * speed;
     }
     // Move backward
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        position -= direction * deltaTime * speed;
+        position -= direction * speed;
     }
     // Strafe right
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        position += right * deltaTime * speed;
+        position += right *  speed;
     }
     // Strafe left
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        position -= right * deltaTime * speed;
+        position -= right * speed;
     }
 
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        position += up * deltaTime * speed;
+        position += up * speed;
     }
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        position += up * deltaTime * speed;
+        position -= up * speed;
     }
 
 
