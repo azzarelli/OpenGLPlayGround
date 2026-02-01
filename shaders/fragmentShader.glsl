@@ -54,10 +54,13 @@ void main(){
 
   // Make triangles that are parallel to the camera more dense
   float cosCamTri = clamp(dot(n, EyeN),0, 1);
-  if (cosCamTri > 0.09)
-      color.a = cosCamTri;
-  else
-      color.a = 0.3;
+  float cosFull = cos(radians(10.0));
+  float cosDropOff = cos(radians(40.0));
 
-
+  // Use smoothstep to interpollate 
+  // Essentially t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0); ---> return t * t * (3.0 - 2.0 * t);
+  float alpha = smoothstep(cosDropOff, cosFull, cosCamTri);
+  
+  
+  color.a = alpha;
 }

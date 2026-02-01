@@ -19,3 +19,5 @@ until I can grease pencil some meshes.
 10. "Tutorial 9": Constructing and Using an Index Buffer for VAO
 11. "Tutorial 10": Adding transparency by using alphablending on fixed material alpha = 0.3
 12. "T10+ViewDependentAlpha": Extended shader to make triangles parallel to camera -> using Cos()
+13. "T10+ViewDepHighGloss": Using smoothstep, we interpollate 
+This essentially interpollates normalizes and skeys the angle between a triangle and the fragment view, between pre-determined "full" and peak "drop-off" angles. E.g. only triangles with dot(tri_norm, cam_dir) < 20Deg will be rendered (with alpha>0) and triangle-fragments with < 5Deg will be alpha=1.  
