@@ -6,7 +6,7 @@ in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
 
-out vec3 color;
+out vec4 color;
 
 // Values that stay constant for the whole mesh
 uniform sampler2D myTextureSampler;
@@ -44,8 +44,9 @@ void main(){
   float cosSpec = clamp (dot(EyeN, Refl), 0, 1);
   MaterialSpecularColor = MaterialSpecularColor * LightPower * pow(cosSpec, 2) / (distance * distance);
 
-	color =
+	color.rgb =
      MaterialAmbientColor + MaterialDiffuseColor + MaterialSpecularColor;
 
+  color.a = 0.3;
 
 }

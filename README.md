@@ -17,3 +17,4 @@ until I can grease pencil some meshes.
 8. "Tutorial 7": Implementing a really simple .obj loader for vertex and texture shader
 9. "Tutorial 8": Implementing a very basic shader + fixed some code bugs from the original tutorial
 10. "Tutorial 9": Constructing and Using an Index Buffer for VAO
+10. "Tutorial 10": Adding transparency by using alphablending on fixed material alpha = 0.3
