@@ -44,9 +44,20 @@ void main(){
   float cosSpec = clamp (dot(EyeN, Refl), 0, 1);
   MaterialSpecularColor = MaterialSpecularColor * LightPower * pow(cosSpec, 2) / (distance * distance);
 
-	color.rgb =
-     MaterialAmbientColor + MaterialDiffuseColor + MaterialSpecularColor;
+  vec3 DebugColor = vec3(1.0f,0.0f, 0.0f);
 
-  color.a = 0.3;
+
+	color.rgb = 
+  // DebugColor * cosSpec ;
+  MaterialAmbientColor + MaterialDiffuseColor + MaterialSpecularColor;
+
+
+  // Make triangles that are parallel to the camera more dense
+  float cosCamTri = clamp(dot(n, EyeN),0, 1);
+  if (cosCamTri > 0.09)
+      color.a = cosCamTri;
+  else
+      color.a = 0.3;
+
 
 }
