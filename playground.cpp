@@ -12,6 +12,7 @@ using namespace glm;
 #include "common/texture.hpp"
 #include "common/controls.hpp"
 #include "common/objloader.hpp"
+#include "common/vboindexer.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -58,6 +59,10 @@ int main(){
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
 
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS); // Accept closer fragments
+
+
     // Compile Shaders
     GLuint programID = LoadShaders( "shaders/vertexShader.glsl", "shaders/fragmentShader.glsl" );
 
@@ -73,7 +78,7 @@ int main(){
 
     // Implemented the texture loader in /common/texture.cpp/hpp
     // GLuint Texture = loadBMP_custom("uvtemplate.bmp");
-    GLuint Texture = loadDDS("assets/tutorial7/uvmap.DDS");
+    GLuint Texture = loadDDS("assets/tutorial9/uvmap.DDS");
 
 	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
 
@@ -82,29 +87,40 @@ int main(){
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
 
-    std::vector< glm::vec3 > vertices;
-    std::vector< glm::vec2 > uvs;
-    std::vector< glm::vec3 > normals; // Won't be used at the moment.
-    bool res = loadOBJ("assets/tutorial7/cube.obj", vertices, uvs, normals);
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec2> uvs;
+	std::vector<glm::vec3> normals;
+	bool res = loadOBJ("assets/tutorial9/suzanne.obj", vertices, uvs, normals);
+
+	std::vector<unsigned short> indices;
+	std::vector<glm::vec3> indexed_vertices;
+	std::vector<glm::vec2> indexed_uvs;
+	std::vector<glm::vec3> indexed_normals;
+	indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
+
+	GLuint vertexbuffer;
+	glGenBuffers(1, &vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
+
+	GLuint uvbuffer;
+	glGenBuffers(1, &uvbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	glBufferData(GL_ARRAY_BUFFER, indexed_uvs.size() * sizeof(glm::vec2), &indexed_uvs[0], GL_STATIC_DRAW);
+
+	GLuint normalbuffer;
+	glGenBuffers(1, &normalbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glBufferData(GL_ARRAY_BUFFER, indexed_normals.size() * sizeof(glm::vec3), &indexed_normals[0], GL_STATIC_DRAW);
+
+	// Generate a buffer for the indices as well
+	GLuint elementbuffer;
+	glGenBuffers(1, &elementbuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
 
 
-    // Identify the vertex buffer
-    GLuint vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-
-    GLuint uvbuffer;
-    glGenBuffers(1, &uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
-
-    GLuint normalbuffer;
-    glGenBuffers(1, &normalbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
-
-
+    // Variables for movin cube
     float x_pos = 0.0f;
     float x_delta = 0.01f;
     float x_pos_sign = 1.0f;
@@ -131,7 +147,6 @@ int main(){
         ModelMatrix = translate(ModelMatrix, vec3(x_pos, 0.0f, 0.0f));;
 
         mat4 mvp = ProjectionMatrix * ViewMatrix * ModelMatrix;
-
         mat4 mv = ViewMatrix * ModelMatrix;
         
         glUseProgram(programID);
@@ -182,19 +197,26 @@ int main(){
             (void*)0                          // array buffer offset
         );
 
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS); // Accept closer fragments
-
+  
         // Draw the triangle !
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size()); // Starting from vertex 0; 3 vertices total -> 1 triangle
-        
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
+		// Index buffer
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
-        // Swap buffers
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+		// Draw the triangles !
+		glDrawElements(
+			GL_TRIANGLES,      // mode
+			indices.size(),    // count
+			GL_UNSIGNED_SHORT,   // type
+			(void*)0           // element array buffer offset
+		);
+
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
+
+		// Swap buffers
+		glfwSwapBuffers(window);
+		glfwPollEvents();
     }
     while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) ==0);
 
